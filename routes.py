@@ -6,6 +6,51 @@ from flask_jwt_extended import create_access_token
 from extensions import db  # Import db from the newly created extensions.py file
 from model import User  # Import the User model
 
+from flask import Blueprint, request, jsonify
+import pandas as pd
+
+routes_blueprint = Blueprint('routes', __name__)
+
+THRESHOLDS = {
+    'Rent/Mortgage': 0.30,
+    'Car Insurance': 0.10,
+    'Groceries': 0.15,
+    'Eating Out': 0.10,
+    'Transportation': 0.10,
+    'Entertainment': 0.10,
+    'Savings': 0.20,
+    'Phone Bill': 0.05,
+    'Electricity': 0.10,
+    'WiFi': 0.05,
+    'Miscellaneous': 0.05,
+}
+
+@routes_blueprint.route('/analyze_budget', methods=['POST'])
+def analyze_budget():
+    try:
+        budget_data = request.json
+        df = pd.DataFrame(list(budget_data.items()), columns=["category", "amount"])
+
+        # Ensure "Monthly Income" exists and calculate ratios
+        total_income = df[df['category'] == 'monthlyIncome']['amount'].values[0]
+        thresholds_df = pd.DataFrame(list(THRESHOLDS.items()), columns=['category', 'threshold'])
+        result_df = pd.merge(df, thresholds_df, on="category", how="left")
+        result_df['ratio'] = result_df['amount'] / total_income
+        result_df['flag'] = result_df['ratio'] > result_df['threshold']
+
+        flagged = result_df[result_df['flag']]
+        flagged_categories = flagged[['category', 'amount', 'threshold', 'ratio']].to_dict(orient='records')
+
+        return jsonify({
+            'message': 'Budget analysis completed successfully.',
+            'flagged_categories': flagged_categories
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
 # Helper function to decode the JWT token and validate the user
 def validate_token(request):
     auth_header = request.headers.get('Authorization', None)  # Extract the authorization header

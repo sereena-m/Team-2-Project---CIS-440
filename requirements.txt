@@ -12,3 +12,4 @@ flask-jwt-extended==4.4.4
 flask-cors
 gunicorn==20.0.4
 gevent
+pandas

@@ -2,308 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Example Page for Your App</title>
-
-    <!-- External Fonts (Press Start 2P) -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap 5 for layout and styling -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome for icons (e.g., power-off, send button) -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
-    <!-- Custom CSS for styling -->
-    <link href="static/css/example_app_page.css" rel="stylesheet">
-
-    <!-- Bootstrap JavaScript for interactivity and offcanvas functionality -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Socket.IO for real-time communication -->
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
-
-    <!-- Data model that interacts with your API -->
-    <script src="static/js/datamodel.js"></script> 
-
-    <!-- JavaScript for handling websockets functionality -->
-    <script src="static/js/chatsocket.js"></script> <!-- Manages WebSocket connections -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .budget-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .results div {
+            margin: 5px 0;
+        }
+        .over-budget {
+            color: red;
+        }
+        .within-budget {
+            color: green;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="text-center">Welcome to Your App</h1>
+    <h1>Budget Management</h1>
+    <form id="budgetForm" class="budget-form">
+        <label>
+            Monthly Income:
+            <input type="number" id="monthlyIncome" class="form-control" required>
+        </label>
+        <label>
+            Rent/Mortgage:
+            <input type="number" id="rentMortgage" class="form-control">
+        </label>
+        <label>
+            Car Insurance:
+            <input type="number" id="carInsurance" class="form-control">
+        </label>
+        <label>
+            Groceries:
+            <input type="number" id="groceries" class="form-control">
+        </label>
+        <label>
+            Eating Out:
+            <input type="number" id="eatingOut" class="form-control">
+        </label>
+        <label>
+            Transportation:
+            <input type="number" id="transportation" class="form-control">
+        </label>
+        <label>
+            Entertainment:
+            <input type="number" id="entertainment" class="form-control">
+        </label>
+        <label>
+            Savings:
+            <input type="number" id="savings" class="form-control">
+        </label>
+        <label>
+            Phone Bill:
+            <input type="number" id="phoneBill" class="form-control">
+        </label>
+        <label>
+            Electricity:
+            <input type="number" id="electricity" class="form-control">
+        </label>
+        <label>
+            WiFi:
+            <input type="number" id="wifi" class="form-control">
+        </label>
+        <label>
+            Miscellaneous:
+            <input type="number" id="miscellaneous" class="form-control">
+        </label>
+        <button type="submit" class="btn-primary">Submit Budget</button>
+    </form>
+    <div id="results" class="results"></div>
 
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main" type="button" role="tab" aria-controls="main" aria-selected="true">Budget Management</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="account-management-tab" data-bs-toggle="tab" data-bs-target="#account-management" type="button" role="tab" aria-controls="account-management" aria-selected="false">Account Management</button>
-            </li>
-        </ul>
+    <script>
+        document.getElementById("budgetForm").addEventListener("submit", (event) => {
+            event.preventDefault();
 
-        <!-- Tab content -->
-        <div class="tab-content mt-3" id="myTabContent">
-            <!-- Main tab content -->
-            <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
-                <p>Welcome to the main section of your app. Add more content here as needed.</p>
-            </div>
+            // Get inputs
+            const income = parseFloat(document.getElementById("monthlyIncome").value);
+            const expenses = {
+                "Rent/Mortgage": parseFloat(document.getElementById("rentMortgage").value) || 0,
+                "Car Insurance": parseFloat(document.getElementById("carInsurance").value) || 0,
+                "Groceries": parseFloat(document.getElementById("groceries").value) || 0,
+                "Eating Out": parseFloat(document.getElementById("eatingOut").value) || 0,
+                "Transportation": parseFloat(document.getElementById("transportation").value) || 0,
+                "Entertainment": parseFloat(document.getElementById("entertainment").value) || 0,
+                "Savings": parseFloat(document.getElementById("savings").value) || 0,
+                "Phone Bill": parseFloat(document.getElementById("phoneBill").value) || 0,
+                "Electricity": parseFloat(document.getElementById("electricity").value) || 0,
+                "WiFi": parseFloat(document.getElementById("wifi").value) || 0,
+                "Miscellaneous": parseFloat(document.getElementById("miscellaneous").value) || 0,
+            };
 
-            <!-- Account Management tab content -->
-            <div class="tab-pane fade" id="account-management" role="tabpanel" aria-labelledby="account-management-tab">
-                <h2>Manage Users</h2>
+            // Thresholds for budget categories
+            const thresholds = {
+                "Rent/Mortgage": 0.30,
+                "Car Insurance": 0.10,
+                "Groceries": 0.15,
+                "Eating Out": 0.10,
+                "Transportation": 0.10,
+                "Entertainment": 0.10,
+                "Savings": 0.20,
+                "Phone Bill": 0.05,
+                "Electricity": 0.10,
+                "WiFi": 0.05,
+                "Miscellaneous": 0.05,
+            };
 
-                <!-- Menu Bar -->
-                <div class="d-flex justify-content-end mb-3">
-                    <button class="btn btn-success me-2" onclick="openAddUserModal()">
-                        <i class="fas fa-user-plus"></i> Add a New User
-                    </button>
-                    <button class="btn btn-primary" onclick="loadUsersIntoTable()">
-                        <i class="fas fa-sync-alt"></i> Refresh User List
-                    </button>
-                </div>
+            // Analyze the budget
+            const results = [];
+            for (const [category, amount] of Object.entries(expenses)) {
+                const threshold = thresholds[category];
+                const ratio = amount / income;
+                const flag = ratio > threshold;
+                results.push({ category, amount, threshold, ratio, flag });
+            }
 
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">Email</th>
-                            <th scope="col">User Type</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>example1@email.com</td>
-                            <td>
-                                User 1 description goes here.
-                            </td>
-                            <td>
-                                <button class="btn btn-primary btn-sm me-2">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash-alt"></i> Delete
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>example2@email.com</td>
-                            <td>
-                                User 2 description goes here.
-                            </td>
-                            <td>
-                                <button class="btn btn-primary btn-sm me-2">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash-alt"></i> Delete
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>example3@email.com</td>
-                            <td>
-                                User 3 description goes here.
-                            </td>
-                            <td>
-                                <button class="btn btn-primary btn-sm me-2">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash-alt"></i> Delete
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-
-   <!-- Modal for Adding a New User -->
-<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addUserModalLabel">Create New Account</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addUserForm">
-                    <!-- Email input -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
-                    </div>
-                    <!-- Password input -->
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
-                    </div>
-                    <!-- Description input -->
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description" required></textarea>
-                    </div>
-                    <!-- Administrator checkbox -->
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="isAdmin" name="isAdmin">
-                        <label class="form-check-label" for="isAdmin">Account will be an administrator</label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="modalCreateButton" type="submit" class="btn btn-primary" form="addUserForm">Create Account</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-    <!-- Modal for Editing a User -->
-<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editUserForm">
-                    <!-- Email input -->
-                    <div class="mb-3">
-                        <label for="editEmail" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="editEmail" name="email" placeholder="Enter email" required>
-                    </div>
-                    <!-- Description input -->
-                    <div class="mb-3">
-                        <label for="editDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="editDescription" name="description" rows="3" placeholder="Enter description" required></textarea>
-                    </div>
-                    <!-- Administrator checkbox -->
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="editIsAdmin" name="isAdmin">
-                        <label class="form-check-label" for="editIsAdmin">Account will be an administrator</label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="modalEditButton" type="submit" class="btn btn-primary" form="editUserForm">Save Changes</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<form class="budget-form">
-    <h2>Monthly Budget Calculator</h2>
-    <div class="form-group">
-        <label for="monthlyIncome">Monthly Income:</label>
-        <input type="number" id="monthlyIncome" name="monthlyIncome" placeholder="Salary, side income" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="rentMortgage">Rent/Mortgage:</label>
-        <input type="number" id="rentMortgage" name="rentMortgage" placeholder="Monthly rent or mortgage payment" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="carInsurance">Car Insurance:</label>
-        <input type="number" id="carInsurance" name="carInsurance" placeholder="Car insurance premium" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="phoneBill">Phone Bill:</label>
-        <input type="number" id="phoneBill" name="phoneBill" placeholder="Mobile phone service" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="electricity">Electricity:</label>
-        <input type="number" id="electricity" name="electricity" placeholder="Electricity utility bill" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="wifi">WiFi:</label>
-        <input type="number" id="wifi" name="wifi" placeholder="Internet service bill" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="groceries">Groceries:</label>
-        <input type="number" id="groceries" name="groceries" placeholder="Monthly grocery expenses" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="eatingOut">Eating Out:</label>
-        <input type="number" id="eatingOut" name="eatingOut" placeholder="Dining out at restaurants or cafes" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="transportation">Transportation:</label>
-        <input type="number" id="transportation" name="transportation" placeholder="Gas or public transit costs" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="entertainment">Entertainment:</label>
-        <input type="number" id="entertainment" name="entertainment" placeholder="Movies, subscriptions, hobbies" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="savings">Savings:</label>
-        <input type="number" id="savings" name="savings" placeholder="Savings for emergency or investments" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="miscellaneous">Miscellaneous:</label>
-        <input type="number" id="miscellaneous" name="miscellaneous" placeholder="Other unplanned expenses" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="netBalance">Net Balance:</label>
-        <input type="number" id="netBalance" name="netBalance" readonly class="form-control">
-    </div>
-
-    <button type="submit" class="btn btn-primary">Calculate Budget</button>
-</form>
-
-<style>
-.budget-form {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-control {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-</style>
-
-
-    <script src="static/js/example_app_page.js"></script> <!-- Handles user interactions on the websocket -->
-
+            // Display results
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = `<h3>Budget Analysis Results</h3>`;
+            results.forEach(({ category, amount, threshold, ratio, flag }) => {
+                const statusClass = flag ? "over-budget" : "within-budget";
+                const statusText = flag ? "Over Budget" : "Within Budget";
+                resultsDiv.innerHTML += `
+                    <div>
+                        <strong>${category}:</strong> $${amount.toFixed(2)} 
+                        (${(ratio * 100).toFixed(2)}% of income, threshold: ${(threshold * 100).toFixed(2)}%) 
+                        - <span class="${statusClass}">${statusText}</span>
+                    </div>`;
+            });
+        });
+    </script>
 </body>
 </html>
