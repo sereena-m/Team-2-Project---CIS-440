@@ -1,4 +1,28 @@
 /* Place index.html page specific styles */
-body {
+/* body {
     font-family: 'Press Start 2P', cursive;
-}
+    
+} */
+
+/* styles.css */
+
+/* Page Background Color */
+body {
+    background-color: #EAFDCF;
+    font-family: Arial, sans-serif; /* You can choose your preferred font */
+  }
+  
+  /* Main Container Shadow */
+  .container {
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Shadow effect */
+    padding: 20px; /* Optional: adjust the padding inside the container */
+    margin: 20px auto; /* Optional: centers the container on the page */
+    max-width: 1200px; /* Optional: limits the maximum width of the container */
+  }
+  
+  /* Logo Font Color and Bold */
+  h1.display-4 {
+    color: #8E8358;
+    font-weight: bold;
+  }
+  
